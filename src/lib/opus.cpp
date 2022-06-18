@@ -23,25 +23,27 @@ along with libcsdr.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Csdr {
 
-    OpusEncoder::OpusEncoder(): FixedLengthModule<short, unsigned char>() {
+    OpusEncoder::OpusEncoder(): Module<short, unsigned char>() {
         int errors;
-        encoder = opus_encoder_create(12000, 1, OPUS_APPLICATION_RESTRICTED_LOWDELAY, &errors);
+        encoder = opus_encoder_create(48000, 1, OPUS_APPLICATION_AUDIO, &errors);
+        opus_encoder_ctl(encoder, OPUS_SET_BITRATE(96000));
     }
 
     OpusEncoder::~OpusEncoder() {
         opus_encoder_destroy(encoder);
     }
 
-    size_t OpusEncoder::getLength() {
-        return 120;
+    bool OpusEncoder::canProcess() {
+        return reader->available() > frame_size;
     }
 
-    void OpusEncoder::process(short *input, unsigned char *output) {
-        int32_t encoded = opus_encode(encoder, input, 120, output, writer->writeable());
+    void OpusEncoder::process() {
+        int32_t encoded = opus_encode(encoder, reader->getReadPointer(), frame_size, writer->getWritePointer(), writer->writeable());
+        reader->advance(frame_size);
         if (encoded > 0) {
             writer->advance(encoded);
         } else {
-            std::cerr << "opus error " << encoded << "\n";
+            std::cerr << "opus encoder error " << encoded << "\n";
         }
     }
 

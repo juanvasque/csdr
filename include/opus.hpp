@@ -24,14 +24,15 @@ along with libcsdr.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Csdr {
 
-    class OpusEncoder: public FixedLengthModule<short, unsigned char> {
+    class OpusEncoder: public Module<short, unsigned char> {
         public:
             OpusEncoder();
             ~OpusEncoder() override;
-            size_t getLength() override;
-            void process(short* input, unsigned char* output) override;
+            bool canProcess() override;
+            void process() override;
         private:
             ::OpusEncoder* encoder;
+            int frame_size = 480;
     };
 
 }
