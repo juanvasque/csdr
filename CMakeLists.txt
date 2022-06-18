@@ -45,6 +45,8 @@ include(cmake/DetectIfunc.cmake)
 
 pkg_check_modules(SAMPLERATE REQUIRED samplerate)
 
+pkg_check_modules(OPUS REQUIRED opus)
+
 if(NOT DEFINED CSDR_GPL)
     set(CSDR_GPL true)
 endif()

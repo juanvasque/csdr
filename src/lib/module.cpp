@@ -124,4 +124,5 @@ namespace Csdr {
 
     template class FixedLengthModule<float, float>;
     template class FixedLengthModule<complex<float>, complex<float>>;
+    template class FixedLengthModule<short, unsigned char>;
 }
