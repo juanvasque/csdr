@@ -25,8 +25,8 @@ namespace Csdr {
 
     OpusEncoder::OpusEncoder(): Module<short, unsigned char>() {
         int errors;
-        encoder = opus_encoder_create(48000, 1, OPUS_APPLICATION_AUDIO, &errors);
-        opus_encoder_ctl(encoder, OPUS_SET_BITRATE(96000));
+        encoder = opus_encoder_create(12000, 1, OPUS_APPLICATION_AUDIO, &errors);
+        opus_encoder_ctl(encoder, OPUS_SET_BITRATE(24000));
     }
 
     OpusEncoder::~OpusEncoder() {
@@ -34,10 +34,12 @@ namespace Csdr {
     }
 
     bool OpusEncoder::canProcess() {
+        std::lock_guard<std::mutex> lock(this->processMutex);
         return reader->available() > frame_size;
     }
 
     void OpusEncoder::process() {
+        std::lock_guard<std::mutex> lock(this->processMutex);
         int32_t encoded = opus_encode(encoder, reader->getReadPointer(), frame_size, writer->getWritePointer(), writer->writeable());
         reader->advance(frame_size);
         if (encoded > 0) {
